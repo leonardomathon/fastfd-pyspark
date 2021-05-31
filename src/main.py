@@ -17,4 +17,5 @@ dataset = spark.read.csv('./dataset/sample_data.csv', header=True)
 fastfd = FastFD(dataset)
 
 hard_FD : list = fastfd.execute()
-fastfd.loop_columns()
+#fastfd.loop_columns()
+fastfd.gen_diff_sets()

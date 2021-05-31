@@ -8,9 +8,20 @@ class FastFD:
     def print_dataset(self):
         print(self.dataset.head())
 
+    def stripped_partitions(self, col):
+      # TODO
+      pass
+
     def gen_diff_sets(self):
-        # TODO
-        pass
+        resDS = {}
+        strips = {}
+        tmpAS = {}
+
+        #print("Test Column: ", self.dataset.select(self.dataset[self.dataset.columns[0]]).show())
+        for attr in self.dataset.columns:
+          self.stripped_partitions(self.dataset.select(self.dataset[attr]))
+
+
 
     def loop_columns(self):
         for col1 in self.dataset.columns:

@@ -6,9 +6,6 @@ class FastFD:
         self.debug: bool =  debug
         self.dataset: DataFrame = dataset
 
-    def print_dataset(self):
-        print(self.dataset.head())
-
     def stripped_partitions(self, col):
         '''
         Returns stripped partition for a certain column col
@@ -36,36 +33,65 @@ class FastFD:
         # Returns stripped partitions for col
         return partition
 
+    def find_match_set(self, t1, t2):
+        '''
+        Find the columns where t1 and t2 agree on
+        '''
+        agree = set()
+        
+        # Loop over columns
+        for col in self.dataset.columns:
+            col_data = self.dataset.select(self.dataset[col])
+            # See if t1 and t2 agree and add them
+            if col_data.collect()[t1][0] == col_data.collect()[t2][0]:
+                agree.add(col)           
+        
+        return agree
+
+    def complement_set(self, agree_set):
+        '''
+        Computes the complement w.r.t agree_set
+        '''
+        col_set = frozenset(self.dataset.columns)
+        return col_set - agree_set
+
+
     def gen_diff_sets(self):
+        '''
+        Computes difference sets Dr from r and R
+        '''
         resDS = set()
-        strips = set()
+        strips = []
         tmpAS = set()
 
         # Compute stripped partition
         for col in self.dataset.columns:
-            strips.add(frozenset(self.stripped_partitions(col)))
+            strips.append(self.stripped_partitions(col))
 
-        if self.debug: print(f"Stripped partitions: {strips}")
+        if self.debug: print(f"\nStripped partitions: {strips}\n")
 
         # Compute agreesets from stripped partitions
         for attribute in strips:
-          for partition in attribute:
-            # Loop over all tuples in a stripped partition
-            for i in partition:
-              for j in partition:
-                if j > i:
-                  if self.debug: print(f"Stripped combination: {i, j}")                 
-        #tmpAS.add()
+            for partition in attribute:
+                # Loop over all tuples in a stripped partition
+                for t1 in partition:
+                    for t2 in partition:
+                        if t2 > t1:
+                            tmpAS.add(frozenset(self.find_match_set(t1, t2)))
+
+        if self.debug: print(f"Agree set: {tmpAS}\n")
 
         # Complement agree sets to get difference sets
-        # for temp in tmpAS:
-        #   resDS.add()
+        for temp in tmpAS:
+            resDS.add(self.complement_set(temp))
+
+        if self.debug: print(f"Difference set: {resDS}\n")
     
     def execute(self):
         '''
         Returns a list of all hard functional dependencies found in self.dataset using the FastFD algorithm
         '''
-        print("Starting FastFD...")
+        print("\nStarting FastFD...\n")
 
         # Generate all difference sets
         self.gen_diff_sets()

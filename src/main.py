@@ -13,9 +13,8 @@ spark = SparkSession.builder\
     .config('spark.ui.port', '4050')\
     .getOrCreate()
 
-dataset = spark.read.csv('./dataset/sample_data.csv', header=True)
-fastfd = FastFD(dataset)
+dataset = spark.read.csv('./dataset/paper_data.csv', header=True)
+fastfd = FastFD(dataset, debug=True)
 
 hard_FD : list = fastfd.execute()
-#fastfd.loop_columns()
-fastfd.gen_diff_sets()
+

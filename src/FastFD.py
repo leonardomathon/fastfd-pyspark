@@ -43,7 +43,11 @@ class FastFD:
 
         # Compute stripped partition
         for col in self.dataset.columns:
-            strips.add(frozenset(self.stripped_partitions(col)))
+            partition = self.stripped_partitions(col)
+            
+            # Add every set to strips
+            for part in partition:
+                strips.add(part)
 
         if self.debug: print(f"Stripped partitions: {strips}")
 

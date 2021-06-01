@@ -43,20 +43,19 @@ class FastFD:
 
         # Compute stripped partition
         for col in self.dataset.columns:
-            partition = self.stripped_partitions(col)
-            
-            # Add every set to strips
-            for part in partition:
-                strips.add(part)
+            strips.add(frozenset(self.stripped_partitions(col)))
 
         if self.debug: print(f"Stripped partitions: {strips}")
 
         # Compute agreesets from stripped partitions
-        # for strip in strips:
-        #   for i in strip:
-        #     for j in strip:
-        #       if j > i:
-        #         tmpAS.add((i, j))
+        for attribute in strips:
+          for partition in attribute:
+            # Loop over all tuples in a stripped partition
+            for i in partition:
+              for j in partition:
+                if j > i:
+                  if self.debug: print(f"Stripped combination: {i, j}")                 
+        #tmpAS.add()
 
         # Complement agree sets to get difference sets
         # for temp in tmpAS:

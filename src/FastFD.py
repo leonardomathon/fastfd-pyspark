@@ -94,19 +94,35 @@ class FastFD:
 
     def gen_min_diff_sets(self, diff_sets, col):
         '''
-        Computes minimal difference sets Dr_a from Dr
+        Computes minimal difference set Dr_a from Dr
         '''
         sub_minimal = set()
         col_set = frozenset(col)
       
-        # Sub minimal agree sets for specified attribute
+        # Sub minimal difference sets for specified column
         for diff_set in diff_sets:
             if col in diff_set:
                 temp_set = frozenset()
                 temp_set = diff_set - col_set
                 if len(temp_set) != 0:
                     sub_minimal.add(temp_set) 
-        if self.debug: print(f"Sub minimal difference set for {col} is: {sub_minimal}\n") 
+        if self.debug: print(f"Sub minimal difference set for {col} is: {sub_minimal}\n")
+
+        minimal = sub_minimal.copy()
+
+        # Minimal difference sets for specified column
+        for p1 in sub_minimal:
+            for p2 in sub_minimal:
+                # Remove differences that have a subset
+                if (p1 != p2) and (p1.issubset(p2)):
+                    print(f"{p1} is a subset of {p2}\n")
+                    if p2 in  minimal:
+                        minimal.remove(p2)
+
+        if self.debug: self.logger.info(f"Minimal difference set for {col} is: {minimal}\n")
+
+        # Return the minimal difference set
+        return minimal
   
 
     def execute(self):

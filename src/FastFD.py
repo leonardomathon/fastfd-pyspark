@@ -125,8 +125,18 @@ class FastFD:
         # Return the minimal difference set
         return minimal
   
-    def find_covers(self):
-        pass
+    def find_covers(self, col, DS_original, DS_remaining, path, order):
+        if (len(order) == 0) and (len(DS_remaining) > 0):
+            return
+        elif (len(DS_remaining) == 0):
+            return #TODO
+        else:
+            return #TODO
+    # TODO       
+    # def find_ordering(self, col, diff_set):
+    #     ordering = set()
+    #     for c in col:
+    #         for diff in diff_set:
 
     def execute(self):
         '''
@@ -145,9 +155,14 @@ class FastFD:
                 lhs = set('∅')
                 rhs = set(col)
                 self.fds.append(FD(lhs, rhs))
-                print(f"FDLIST: {self.fds}\n")
             else: 
-                pass
+                path = set()
+                #order = self.find_ordering(col, min_diff_set)
+                order = []
+                for col in self.dataset.columns:
+                    order.append(col)
+                print(f'Order: {order}\n')
+                self.find_covers(col, min_diff_set, min_diff_set, path, order)
 
 
         # For each column in R:

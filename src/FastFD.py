@@ -86,7 +86,27 @@ class FastFD:
             resDS.add(self.complement_set(temp))
 
         if self.debug: print(f"Difference set: {resDS}\n")
-    
+        
+        # Return the difference sets
+        return resDS
+
+    def gen_min_diff_sets(self, diff_sets, col):
+      '''
+      Computes minimal difference sets Dr_a from Dr
+      '''
+      sub_minimal = set()
+      col_set = frozenset(col)
+      
+      # Sub minimal agree sets for specified attribute
+      for diff_set in diff_sets:
+        if col in diff_set:
+          temp_set = frozenset()
+          temp_set = diff_set - col_set
+          if len(temp_set) != 0:
+            sub_minimal.add(temp_set) 
+      if self.debug: print(f"Sub minimal difference set for {col} is: {sub_minimal}\n") 
+  
+
     def execute(self):
         '''
         Returns a list of all hard functional dependencies found in self.dataset using the FastFD algorithm
@@ -94,10 +114,15 @@ class FastFD:
         print("\nStarting FastFD...\n")
 
         # Generate all difference sets
-        self.gen_diff_sets()
+        diff_sets = self.gen_diff_sets()
+
+        # Generate all minimal difference sets
+        for col in self.dataset.columns:
+          self.gen_min_diff_sets(diff_sets, col)
 
         # For each column in R:
         # Compute D^A_r from D^r
+        #for col in self.dataset.columns:
 
         # If D^A_r == empty:
         # Output "empty --> A"

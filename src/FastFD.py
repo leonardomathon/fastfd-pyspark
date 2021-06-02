@@ -2,8 +2,9 @@ from pyspark import SparkContext
 from pyspark.sql.functions import length
 
 class FastFD:
-    def __init__(self, dataset, debug):
+    def __init__(self, dataset, debug, logger):
         self.debug: bool =  debug
+        self.logger = logger
         self.dataset: DataFrame = dataset
 
     def stripped_partitions(self, col):
@@ -28,7 +29,7 @@ class FastFD:
             if len(same) != 1:
                 partition.add(frozenset(same))     
 
-        if self.debug: print(f"Stripped partition for column {col}\t Partition set: {partition}")
+        if self.debug: self.logger.info(f"Stripped partition for column {col}\t Partition set: {partition}")
 
         # Returns stripped partitions for col
         return partition
@@ -68,7 +69,8 @@ class FastFD:
         for col in self.dataset.columns:
             strips.append(self.stripped_partitions(col))
 
-        if self.debug: print(f"\nStripped partitions: {strips}\n")
+        if self.debug: self.logger.info(f"Stripped partitions done\n")
+        if self.debug: self.logger.info(f"Stripped partitions: {strips}\n")
 
         # Compute agreesets from stripped partitions
         for attribute in strips:
@@ -79,46 +81,46 @@ class FastFD:
                         if t2 > t1:
                             tmpAS.add(frozenset(self.find_match_set(t1, t2)))
 
-        if self.debug: print(f"Agree set: {tmpAS}\n")
+        if self.debug: self.logger.info(f"Agree set: {tmpAS}\n")
 
         # Complement agree sets to get difference sets
         for temp in tmpAS:
             resDS.add(self.complement_set(temp))
 
-        if self.debug: print(f"Difference set: {resDS}\n")
+        if self.debug: self.logger.info(f"Difference set: {resDS}\n")
         
         # Return the difference sets
         return resDS
 
     def gen_min_diff_sets(self, diff_sets, col):
-      '''
-      Computes minimal difference sets Dr_a from Dr
-      '''
-      sub_minimal = set()
-      col_set = frozenset(col)
+        '''
+        Computes minimal difference sets Dr_a from Dr
+        '''
+        sub_minimal = set()
+        col_set = frozenset(col)
       
-      # Sub minimal agree sets for specified attribute
-      for diff_set in diff_sets:
-        if col in diff_set:
-          temp_set = frozenset()
-          temp_set = diff_set - col_set
-          if len(temp_set) != 0:
-            sub_minimal.add(temp_set) 
-      if self.debug: print(f"Sub minimal difference set for {col} is: {sub_minimal}\n") 
+        # Sub minimal agree sets for specified attribute
+        for diff_set in diff_sets:
+            if col in diff_set:
+                temp_set = frozenset()
+                temp_set = diff_set - col_set
+                if len(temp_set) != 0:
+                    sub_minimal.add(temp_set) 
+        if self.debug: print(f"Sub minimal difference set for {col} is: {sub_minimal}\n") 
   
 
     def execute(self):
         '''
         Returns a list of all hard functional dependencies found in self.dataset using the FastFD algorithm
         '''
-        print("\nStarting FastFD...\n")
+        self.logger.info("Starting FastFD...\n")
 
         # Generate all difference sets
         diff_sets = self.gen_diff_sets()
 
         # Generate all minimal difference sets
         for col in self.dataset.columns:
-          self.gen_min_diff_sets(diff_sets, col)
+            self.gen_min_diff_sets(diff_sets, col)
 
         # For each column in R:
         # Compute D^A_r from D^r

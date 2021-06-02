@@ -1,3 +1,4 @@
+from typing import List
 from pyspark import SparkContext
 from pyspark.sql.functions import length
 
@@ -6,6 +7,7 @@ class FastFD:
         self.debug: bool =  debug
         self.logger = logger
         self.dataset: DataFrame = dataset
+        self.fds: list = []
 
     def stripped_partitions(self, col):
         '''
@@ -124,6 +126,8 @@ class FastFD:
         # Return the minimal difference set
         return minimal
   
+    def find_covers(self):
+        pass
 
     def execute(self):
         '''
@@ -136,7 +140,11 @@ class FastFD:
 
         # Generate all minimal difference sets
         for col in self.dataset.columns:
-            self.gen_min_diff_sets(diff_sets, col)
+            min_diff_set = self.gen_min_diff_sets(diff_sets, col)
+
+            if len(min_diff_set) != 0:
+                pass
+
 
         # For each column in R:
         # Compute D^A_r from D^r

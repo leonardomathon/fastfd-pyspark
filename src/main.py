@@ -27,6 +27,7 @@ findspark.find()
 
 from pyspark.sql import SparkSession
 
+from FD import FD
 from FastFD import FastFD
 
 spark = SparkSession.builder\
@@ -39,4 +40,3 @@ dataset = spark.read.csv('./dataset/paper_data.csv', header=True)
 fastfd = FastFD(dataset, debug=True, logger=logger)
 
 hard_FD : list = fastfd.execute()
-

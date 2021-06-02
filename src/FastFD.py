@@ -1,6 +1,7 @@
 from typing import List
 from pyspark import SparkContext
 from pyspark.sql.functions import length
+from FD import FD
 
 class FastFD:
     def __init__(self, dataset, debug, logger):
@@ -140,7 +141,12 @@ class FastFD:
         for col in self.dataset.columns:
             min_diff_set = self.gen_min_diff_sets(diff_sets, col)
 
-            if len(min_diff_set) != 0:
+            if len(min_diff_set) == 0:
+                lhs = set('∅')
+                rhs = set(col)
+                self.fds.append(FD(lhs, rhs))
+                print(f"FDLIST: {self.fds}\n")
+            else: 
                 pass
 
 

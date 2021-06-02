@@ -106,7 +106,6 @@ class FastFD:
                 temp_set = diff_set - col_set
                 if len(temp_set) != 0:
                     sub_minimal.add(temp_set) 
-        if self.debug: print(f"Sub minimal difference set for {col} is: {sub_minimal}\n")
 
         minimal = sub_minimal.copy()
 
@@ -115,7 +114,6 @@ class FastFD:
             for p2 in sub_minimal:
                 # Remove differences that have a subset
                 if (p1 != p2) and (p1.issubset(p2)):
-                    print(f"{p1} is a subset of {p2}\n")
                     if p2 in  minimal:
                         minimal.remove(p2)
 

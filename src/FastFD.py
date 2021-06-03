@@ -62,7 +62,7 @@ class FastFD:
 
     def gen_diff_sets(self):
         '''
-        Computes difference sets Dr from r and R
+        Computes difference sets D_r from r and R
         '''
         resDS = set()
         strips = []
@@ -97,7 +97,7 @@ class FastFD:
 
     def gen_min_diff_sets(self, diff_sets, col):
         '''
-        Computes minimal difference set Dr_a from Dr
+        Computes minimal difference set D_r^a from D_r
         '''
         sub_minimal = set()
         col_set = frozenset(col)
@@ -132,11 +132,19 @@ class FastFD:
             return #TODO
         else:
             return #TODO
+    
     # TODO       
     # def find_ordering(self, col, diff_set):
     #     ordering = set()
     #     for c in col:
     #         for diff in diff_set:
+
+    def print_fds(self):
+        '''
+        Prints the list of FD's
+        '''
+        for fd in self.fds:
+            print(fd)
 
     def execute(self):
         '''

@@ -140,30 +140,27 @@ class FastFD:
         return ordering
 
     def find_covers(self, col, DS_original, DS_remaining, path, order):
-        print(f"Start find covers for {col}")
-        print(f"Path1 is {path}")
+        print(f"Start find covers for {col}\n")
 
         if (len(order) == 0) and (len(DS_remaining) > 0):
-            print(f"First loop, no FD's here")
+            print(f"First loop, no FD's here\n")
             return
         elif (len(DS_remaining) == 0):
-            print(f"Enter second loop")
+            print(f"Enter second loop\n")
             temp_path = frozenset(path)
             for cover in self.temp_covers:
-                if temp_path.issubset(cover):
-                    print(f"Second loop, subset return")
+                if cover.issubset(temp_path):
+                    print(f"Second loop, subset return\n")
                     return
             self.temp_covers.add(frozenset(path))
-            print(f"Second loop, fd added")
+            print(f"Second loop, fd added\n")
         else:
-            print(f"Start recursion")
-            print(f"ORDER: {order}")
             for col in order:
                 DS_remaining = set()
                 temp_col = frozenset(col)
                 for diff in DS_original:
                     if not temp_col.issubset(diff):
-                        print(f"{temp_col} is not a subset of {diff}")
+                        print(f"{temp_col} is not a subset of {diff}\n")
                         DS_remaining.add(diff)
                 index_col = order.index(col)
                 temp_order = order.copy()
@@ -173,9 +170,9 @@ class FastFD:
                 new_order = self.find_ordering(temp_order, DS_remaining)
                 new_path = path.copy()
                 new_path.append(col)
-                print(f"Path2 is {path}")
+                print(f"Path is {path}\n")
                 self.find_covers(col, DS_remaining, DS_remaining, new_path, new_order)
-        print(f'fds: {self.temp_covers}')
+        print(f'fds: {self.temp_covers}\n')
 
     def print_fds(self):
         '''

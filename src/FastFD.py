@@ -125,54 +125,78 @@ class FastFD:
 
         # Return the minimal difference set
         return minimal
-  
-      # TODO       
+      
     def find_ordering(self, elements, diff_set):
+        # Initialize the list keeping track how many difference sets each remaining attribute covers
         count = []
+
+        # Iterate over all remaining attributes of the ordering
         for index, col in enumerate(elements):
             col_set = frozenset(col)
             count.append([col, 0])
             for diff in diff_set: 
+                # Increment the counter for the current attribute
                 if col_set.issubset(diff):
-                    count[index][1] = count[index][1] + 1            
+                    count[index][1] = count[index][1] + 1      
+        
+        # Sort counters in the ordering based on descending counters      
         sorted_ordering = sorted(count, key=lambda x: -x[1])
+        # Sort the attributes in the ordering based on the corresponding counters
         ordering = [i[0] for i in sorted_ordering]
+
+        # Return the lexographical ordering
         return ordering
 
     def find_covers(self, col, DS_original, DS_remaining, path, order):
         print(f"Start find covers for {col}\n")
 
+        # Difference sets left to cover, but no attributes left to unfold
         if (len(order) == 0) and (len(DS_remaining) > 0):
             print(f"First loop, no FD's here\n")
             return
+        # No difference sets left to cover
         elif (len(DS_remaining) == 0):
             print(f"Enter second loop\n")
             temp_path = frozenset(path)
+            # If the FD is not be minimal return 
             for cover in self.temp_covers:
                 if cover.issubset(temp_path):
                     print(f"Second loop, subset return\n")
                     return
+            # Otherwise, output the subset built along the path to the current leaf as a LHS for an FD for the current attribute
             self.temp_covers.add(frozenset(path))
             print(f"Second loop, fd added\n")
+        # Initialize recursion tree
         else:
+            # Iterate over all remaining attributes in the ordering
             for col in order:
                 DS_remaining = set()
                 temp_col = frozenset(col)
+
+                # Compute the difference sets that are not yet covered by the attribute
                 for diff in DS_original:
                     if not temp_col.issubset(diff):
                         print(f"{temp_col} is not a subset of {diff}\n")
                         DS_remaining.add(diff)
+
+                # Compute the lexographical ordering based on the remaining difference sets
                 index_col = order.index(col)
                 temp_order = order.copy()
                 for element in order:
                     if order.index(element) <= index_col:
                         temp_order.remove(element)
                 new_order = self.find_ordering(temp_order, DS_remaining)
+
+                # Update the path
                 new_path = path.copy()
                 new_path.append(col)
                 print(f"Path is {path}\n")
+
+                # Recursive iteration
                 self.find_covers(col, DS_remaining, DS_remaining, new_path, new_order)
-        print(f'fds: {self.temp_covers}\n')
+
+        # Return the lhs of all fds for the current attribute
+        return self.temp_covers
 
     def print_fds(self):
         '''
@@ -190,16 +214,22 @@ class FastFD:
         # Generate all difference sets
         diff_sets = self.gen_diff_sets()
 
-        # Generate all minimal difference sets
+
         for col in self.dataset.columns:
+            # Clear the set containing covers for the previous attribute
+            self.temp_covers = set()
+            # Generate all minimum difference sets for the current attribute
             min_diff_set = self.gen_min_diff_sets(diff_sets, col)
 
+            # If the minimal difference set is empty, there are no fd's for the current attribute
             if len(min_diff_set) == 0:
-                lhs = set('∅')
-                rhs = set(col)
+                lhs = frozenset('∅')
+                rhs = frozenset(col)
                 self.fds.append(FD(lhs, rhs))
             else: 
+                # Initialize the path
                 path = []
+                # Initialize the list of elements necessary to compute the lexographical order
                 elements = []
 
                 # Create a list of all columns except the current one
@@ -207,21 +237,19 @@ class FastFD:
                     if col != attr:
                         elements.append(attr)
 
-                # Create the lexographic order
+                # Create the lexographical order
                 order = self.find_ordering(elements, min_diff_set)
                 print(f"The order for {col} is: {order}\n") 
-                # Set with temporary covers
-                if col == 'A':
-                    # Find the covers
-                    self.find_covers(col, min_diff_set, min_diff_set, path, order)
+                
+                # Set containing the lhs of all fds with the current attribute on the rhs
+                covers_attr = self.find_covers(col, min_diff_set, min_diff_set, path, order)
 
+                # Add all fds with the current attribute on the rhs to the global fd list
+                for cover in covers_attr:
+                    lhs = cover
+                    rhs = frozenset(col)
+                    self.fds.append(FD(lhs, rhs))
 
-        # For each column in R:
-        # Compute D^A_r from D^r
-        #for col in self.dataset.columns:
+        # Print all fds
+        self.print_fds()
 
-        # If D^A_r == empty:
-        # Output "empty --> A"
-
-        # Else if empty \notin D^A_r then:
-        # find_covers(...)

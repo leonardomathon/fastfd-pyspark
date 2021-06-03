@@ -129,15 +129,25 @@ class FastFD:
         if (len(order) == 0) and (len(DS_remaining) > 0):
             return
         elif (len(DS_remaining) == 0):
-            return #TODO
+            if True:
+                pass
+            else:
+                return
         else:
             return #TODO
     
     # TODO       
-    # def find_ordering(self, col, diff_set):
-    #     ordering = set()
-    #     for c in col:
-    #         for diff in diff_set:
+    def find_ordering(self, elements, diff_set):
+        count = []
+        for index, col in enumerate(elements):
+            col_set = frozenset(col)
+            count.append([col, 0])
+            for diff in diff_set: 
+                if col_set.issubset(diff):
+                    count[index][1] = count[index][1] + 1            
+        sorted_ordering = sorted(count, key=lambda x: -x[1])
+        ordering = [i[0] for i in sorted_ordering]
+        return ordering
 
     def print_fds(self):
         '''
@@ -165,11 +175,18 @@ class FastFD:
                 self.fds.append(FD(lhs, rhs))
             else: 
                 path = set()
-                #order = self.find_ordering(col, min_diff_set)
-                order = []
-                for col in self.dataset.columns:
-                    order.append(col)
-                print(f'Order: {order}\n')
+                elements = []
+
+                # Create a list of all columns except the current one
+                for attr in self.dataset.columns:
+                    if col != attr:
+                        elements.append(attr)
+                        
+                # Create the lexographic order
+                order = self.find_ordering(elements, min_diff_set)
+                print(f"The order for {col} is: {order}\n") 
+
+                # Find the covers
                 self.find_covers(col, min_diff_set, min_diff_set, path, order)
 
 

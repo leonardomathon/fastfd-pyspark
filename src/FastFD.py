@@ -125,18 +125,7 @@ class FastFD:
         # Return the minimal difference set
         return minimal
   
-    def find_covers(self, col, DS_original, DS_remaining, path, order):
-        if (len(order) == 0) and (len(DS_remaining) > 0):
-            return
-        elif (len(DS_remaining) == 0):
-            if True:
-                pass
-            else:
-                return
-        else:
-            return #TODO
-    
-    # TODO       
+      # TODO       
     def find_ordering(self, elements, diff_set):
         count = []
         for index, col in enumerate(elements):
@@ -148,6 +137,33 @@ class FastFD:
         sorted_ordering = sorted(count, key=lambda x: -x[1])
         ordering = [i[0] for i in sorted_ordering]
         return ordering
+
+    def find_covers(self, col, DS_original, DS_remaining, path, order):
+        temp_covers = set()
+        
+        if (len(order) == 0) and (len(DS_remaining) > 0):
+            return
+        elif (len(DS_remaining) == 0):
+            temp_path = frozenset(path)
+            for cover in temp_covers:
+                if temp_path.issubset(cover):
+                    return
+            temp_covers.add(frozenset(path))
+        else:
+            for col in order:
+                DS_remaining.clear()
+                temp_col = frozenset(col)
+                for diff in DS_original:
+                    if not temp_covers.issubset(diff):
+                        DS_remaining.add(diff)
+                index_col = order.index(col)
+                temp_order = order.copy()
+                for element in order:
+                    if order.index(element) <= index_col:
+                        temp_order.remove(element)
+                new_order = self.find_ordering(temp_order, DS_remaining)
+                new_path = path.append(col)
+                self.find_covers(col, DS_remaining, DS_remaining, new_path, new_order)
 
     def print_fds(self):
         '''
@@ -174,14 +190,14 @@ class FastFD:
                 rhs = set(col)
                 self.fds.append(FD(lhs, rhs))
             else: 
-                path = set()
+                path = []
                 elements = []
 
                 # Create a list of all columns except the current one
                 for attr in self.dataset.columns:
                     if col != attr:
                         elements.append(attr)
-                        
+
                 # Create the lexographic order
                 order = self.find_ordering(elements, min_diff_set)
                 print(f"The order for {col} is: {order}\n") 

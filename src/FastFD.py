@@ -214,7 +214,6 @@ class FastFD:
         # Generate all difference sets
         diff_sets = self.gen_diff_sets()
 
-
         for col in self.dataset.columns:
             # Clear the set containing covers for the previous attribute
             self.temp_covers = set()
@@ -223,8 +222,8 @@ class FastFD:
 
             # If the minimal difference set is empty, there are no fd's for the current attribute
             if len(min_diff_set) == 0:
-                lhs = set('∅')
-                rhs = set(col)
+                lhs = ['∅']
+                rhs = [col]
                 self.fds.append(FD(lhs, rhs))
             else: 
                 # Initialize the path
@@ -250,9 +249,12 @@ class FastFD:
                     for fd in cover:
                         lhs.add(fd)
                     lhs = sorted(lhs)
-                    rhs = set(col)
+                    rhs = list(col)
                     self.fds.append(FD(lhs, rhs))
 
         # Print all fds
         self.print_fds()
+
+        # Ending message
+        self.logger.info("Finished FastFD!\n")
 

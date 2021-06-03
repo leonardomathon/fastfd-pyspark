@@ -2,12 +2,15 @@ import sys
 import logging
 from datetime import datetime
 
+# Get current time
+current_time = datetime.now()
+
 # Create logging object
 logger = logging.getLogger('FastFD-logger')
 logger.setLevel(logging.DEBUG)
 
 # Create log file
-fh = logging.FileHandler(datetime.now().strftime('./logs/log_%Y_%m_%d_%H_%M.log'))
+fh = logging.FileHandler(current_time.strftime('./logs/log_%Y_%m_%d_%H_%M.log'))
 
 # Log to file and to stdout
 sh = logging.StreamHandler(sys.stdout)
@@ -37,6 +40,12 @@ spark = SparkSession.builder\
     .getOrCreate()
 
 dataset = spark.read.csv('./dataset/paper_data.csv', header=True)
-fastfd = FastFD(dataset, debug=True, logger=logger)
 
-hard_FD : list = fastfd.execute()
+# Create FD miner object and execute it
+fastfd = FastFD(dataset, debug=True, logger=logger)
+fastfd.execute()
+
+# Write FDs to file
+f = open(current_time.strftime('./logs/found_hard_fds_%Y_%m_%d_%H_%M.log'), 'w')
+for fd in fastfd.fds:
+    f.write(f"{str(fd)}\n")
